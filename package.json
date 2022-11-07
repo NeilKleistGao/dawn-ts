@@ -1,0 +1,24 @@
+{
+  "name": "dawn-ts",
+  "version": "1.0.0",
+  "description": "A quasi-quotation framework for TypeScript.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NeilKleistGao/dawn-ts.git"
+  },
+  "author": "NeilKleistGao",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NeilKleistGao/dawn-ts/issues"
+  },
+  "homepage": "https://github.com/NeilKleistGao/dawn-ts#readme",
+  "devDependencies": {
+    "@types/node": "^18.11.9",
+    "tslint": "^6.1.3",
+    "typescript": "^4.8.4"
+  }
+}
