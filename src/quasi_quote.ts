@@ -21,6 +21,7 @@ export namespace dawn {
 
       this.m_program = ts.createProgram([""], Code.s_options, this.m_compiler_host);
       this.m_checker = this.m_program.getTypeChecker();
+      this.m_program.emit();
     }
 
     run(): T {

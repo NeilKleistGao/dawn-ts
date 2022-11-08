@@ -20,4 +20,25 @@ test("parsing test", () => {
     let code = dawn.code<null>(`null`);
     expect(code.run() === null);
   }
+
+  {
+    let code = dawn.code<{a: 42}>(`({a: 42})`);
+    expect(code.run().a === 42);
+  }
+
+  {
+    let code = dawn.code<(x: number) => number>(`(x: number) => return x + 1`);
+    let inc:(x: number) => number = code.run();
+    expect(inc(42) === 43);
+  }
+
+  {
+    let code = dawn.code<void>(`const a = 42;`);
+    code.run();
+  }
+
+  {
+    let code = dawn.code<void>(`if (true) { console.log("hello"); }`);
+    code.run();
+  }
 })
