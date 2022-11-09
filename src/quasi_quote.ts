@@ -1,31 +1,40 @@
 import * as ts from "typescript";
 
 export namespace dawn {
+  interface MatchingResult {}
+
   class Code<T> {
     private static s_options = {
       "target": ts.ScriptTarget.ES2016,
       "module": ts.ModuleKind.CommonJS
     };
 
-    private m_compiler_host = ts.createCompilerHost(Code.s_options);
-
     private m_program: ts.Program;
-    private m_checker: ts.TypeChecker;
-    private m_js: string | null = null;
+    private m_js: string | undefined = undefined;
+    private m_function: Function | undefined;
 
     constructor(p_code: string) {
-      this.m_compiler_host.readFile =
+      let compiler_host = ts.createCompilerHost(Code.s_options);
+      compiler_host.readFile =
         (p_filename: string) => { p_filename; return p_code; };
-      this.m_compiler_host.writeFile =
+      compiler_host.writeFile =
         (p_filename: string, p_content: string) => { p_filename; this.m_js = p_content; };
 
-      this.m_program = ts.createProgram([""], Code.s_options, this.m_compiler_host);
-      this.m_checker = this.m_program.getTypeChecker();
-      this.m_program.emit();
+      this.m_program = ts.createProgram(["code.ts"], Code.s_options, compiler_host);
     }
 
     run(): T {
-      return eval(this.m_js as string) as T;
+      if (this.m_function === undefined) {
+        this.m_program.emit();
+        const js = this.m_js as string;
+        this.m_function = new Function(js);
+      }
+
+      return (this.m_function as Function)() as T;
+    }
+
+    match(pattern: Code<T>): MatchingResult | null {
+      return null; // TODO:
     }
   }
 
