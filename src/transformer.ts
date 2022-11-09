@@ -32,6 +32,17 @@ export namespace dawn {
     }
   
     private visit(p_node: ts.Node): ts.VisitResult<ts.Node> {
+      if (ts.isCallExpression(p_node)) {
+        if (ts.isIdentifier(p_node.expression)) {
+          if (p_node.expression.escapedText === "code$") {
+            return ts.factory.createCallExpression(
+              ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
+                ts.factory.createBlock([], false)), undefined, undefined
+            );
+          }
+        }
+      }
+
       return ts.visitEachChild(p_node, this.m_visitor, this.m_context);
     }
   }

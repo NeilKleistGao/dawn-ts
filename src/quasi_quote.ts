@@ -3,7 +3,7 @@ import * as ts from "typescript";
 export namespace dawn {
   interface MatchingResult {}
 
-  class Code<T> {
+  export class Code<T> {
     private static s_options = {
       "target": ts.ScriptTarget.ES2016,
       "module": ts.ModuleKind.CommonJS
@@ -37,10 +37,4 @@ export namespace dawn {
       return null; // TODO:
     }
   }
-
-  //TODO: TemplateStringsArray
-  export function code<T>(p_str: TemplateStringsArray): Code<T> | undefined {
-    return undefined;
-  }
-  
 } // namespace dawn
