@@ -1,4 +1,5 @@
 import * as ts from "typescript";
+import {dawn as utils} from "./utils";
 
 export namespace dawn {
   export class QuasiQuotationTransformer {
@@ -35,6 +36,25 @@ export namespace dawn {
       if (ts.isCallExpression(p_node)) {
         if (ts.isIdentifier(p_node.expression)) {
           if (p_node.expression.escapedText === "code$") {
+            if (p_node.arguments === undefined || p_node.arguments.length !== 1) {
+              throw utils.throwQuoteError(p_node, "quasi-quotation takes one argument.");
+            }
+
+            const arg = p_node.arguments[0];
+            if (ts.isStringLiteralLike(arg)) {
+              const res = createProgram(arg.text, true); // TODO:
+              return ts.factory.createCallExpression(
+                ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
+                  ts.factory.createBlock([], false)), undefined, undefined
+              );
+            }
+            else if (ts.isTemplateExpression(arg)) {
+              // TODO:
+            }
+            else {
+              throw utils.throwQuoteError(p_node, "the argument of quasi-quotation should be string or TemplateStringsArray.");
+            }
+
             return ts.factory.createCallExpression(
               ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
                 ts.factory.createBlock([], false)), undefined, undefined
@@ -45,5 +65,26 @@ export namespace dawn {
 
       return ts.visitEachChild(p_node, this.m_visitor, this.m_context);
     }
+  }
+
+  function createProgram(p_code: string, p_emit: boolean): [ts.Program, string] {
+    const options = {
+      "target": ts.ScriptTarget.ES2016,
+      "module": ts.ModuleKind.CommonJS
+    };
+
+    let js = "";
+    let compiler_host = ts.createCompilerHost(options);
+      compiler_host.readFile =
+        (p_filename: string) => { p_filename; return p_code; };
+      compiler_host.writeFile =
+        (p_filename: string, p_content: string) => { p_filename; js = p_content; };
+
+    const program = ts.createProgram(["code.ts"], options, compiler_host);
+    if (p_emit) {
+      program.emit();
+    }
+
+    return [program, js];
   }
 } // namespace dawn
