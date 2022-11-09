@@ -11,7 +11,7 @@ export namespace dawn {
 
     private m_program: ts.Program;
     private m_js: string | undefined = undefined;
-    private m_function: Function | undefined;
+    private m_function: Function | undefined = undefined;
 
     constructor(p_code: string) {
       let compiler_host = ts.createCompilerHost(Code.s_options);
@@ -38,8 +38,9 @@ export namespace dawn {
     }
   }
 
-  export function code<T>(p_str: string): Code<T> {
-    return new Code<T>(p_str);
+  //TODO: TemplateStringsArray
+  export function code<T>(p_str: TemplateStringsArray): Code<T> | undefined {
+    return undefined;
   }
   
 } // namespace dawn

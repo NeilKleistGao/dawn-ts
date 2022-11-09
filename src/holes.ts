@@ -3,5 +3,11 @@ namespace dawn {
     // TODO:
   }
 
+  class ApplyedHole implements Hole {
 
+  }
+
+  class UnapplyedHole implements Hole {
+    
+  }
 } // namespace dawn

@@ -19,3 +19,5 @@ jobs:
       run: npm install
     - name: run tests
       run: npm run test
+    - name: check update
+      run: git diff-files -p --exit-code --diff-filter=ADMR -w

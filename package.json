@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
-    "test": "jest"
+    "test": "npm run build && cd test && ../node_modules/.bin/ttsc"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
     "ts-jest": "^29.0.3",
     "ts-node": "^10.9.1",
     "tslint": "^6.1.3",
+    "ttypescript": "^1.5.13",
     "typescript": "^4.8.4"
   }
 }
