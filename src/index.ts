@@ -1,13 +1,24 @@
 import * as ts from "typescript";
-import {dawn as core} from "./quasi_quote";
 import {dawn} from "./transformer";
 
 export class Code<T> {
-  constructor() {
+  private m_js: Function | undefined = undefined;
+  private m_root: ts.Node;
+
+  constructor(p_ast: ts.Node, p_js: string | undefined) {
+    this.m_root = p_ast;
+    if (p_js !== undefined) {
+      this.m_js = new Function(p_js);
+    }
   }
 
   run(): T | never {
-    throw new Error("the node could not be run.");
+    if (this.m_js === undefined) {
+      throw new Error("the node could not be run.");
+    }
+    else {
+      return this.m_js() as T;
+    }
   }
 
   match(pattern: Code<T>): null {
