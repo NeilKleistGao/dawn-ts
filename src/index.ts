@@ -26,7 +26,7 @@ export class Code<T> {
   }
 }
 
-export declare function code$<T>(code: string | TemplateStringsArray): Code<T>;
+export declare function code$<T>(code: T): Code<T>;
 
 export default(p_program: ts.Program): ts.TransformerFactory<ts.Node> =>
   (p_ctx) => {

@@ -28,3 +28,6 @@ const code$ = dawn.code$;
 let code = (() => { return new dawn.Code(null, "return 2 + 2;\n"); })();
 let v4 = code.run();
 console.log(v4);
+let code2 = (() => { return new dawn.Code(null, "return \"abcdefg\".substring(2);\n"); })();
+let str = code2.run();
+console.log(str);

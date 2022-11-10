@@ -23,8 +23,4 @@ export namespace dawn {
     process.exit();
   }
 
-  export function rebuildAST() {
-    
-  }
-
 } // namespace dawn
