@@ -53,7 +53,7 @@ export namespace dawn {
                   ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
                     ts.factory.createBlock([
                       ts.factory.createReturnStatement(
-                        ts.factory.createNewExpression(ts.factory.createIdentifier("dawn.Code"), [type_arg], undefined)
+                        ts.factory.createNewExpression(ts.factory.createIdentifier("dawn.Code"), [type_arg], [])
                       )
                     ], false)
                   )
