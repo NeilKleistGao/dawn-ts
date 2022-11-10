@@ -47,7 +47,10 @@ export namespace dawn {
             const arg = p_node.arguments[0];
             const type_arg = p_node.typeArguments[0];
             if (ts.isStringLiteralLike(arg)) {
-              const res = createProgram(arg.text, true);
+              let js = "";
+              const program = createProgram(arg.text, (p_content: string) => {js = p_content;});
+              program.emit();
+
               return ts.factory.createCallExpression(
                 ts.factory.createParenthesizedExpression(
                   ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
@@ -55,7 +58,7 @@ export namespace dawn {
                       ts.factory.createReturnStatement(
                         ts.factory.createNewExpression(ts.factory.createIdentifier("dawn.Code"), [type_arg], [
                           ts.factory.createNull(), // TODO:
-                          ts.factory.createStringLiteral("return "+  res[1]) // TODO:
+                          ts.factory.createStringLiteral("return "+  js) // TODO:
                         ])
                       )
                     ], false)
@@ -82,24 +85,19 @@ export namespace dawn {
     }
   }
 
-  function createProgram(p_code: string, p_emit: boolean): [ts.Program, string] {
+  function createProgram(p_code: string, p_save: (p_content: string) => void = (p_content: string) => {p_content;}): ts.Program {
     const options = {
       "target": ts.ScriptTarget.ES2016,
       "module": ts.ModuleKind.CommonJS
     };
 
-    let js = "";
     let compiler_host = ts.createCompilerHost(options);
       compiler_host.readFile =
         (p_filename: string) => { p_filename; return p_code; };
       compiler_host.writeFile =
-        (p_filename: string, p_content: string) => { p_filename; js = p_content; };
+        (p_filename: string, p_content: string) => { p_filename; p_save(p_content); };
 
     const program = ts.createProgram(["code.ts"], options, compiler_host);
-    if (p_emit) {
-      program.emit();
-    }
-
-    return [program, js];
+    return program;
   }
 } // namespace dawn
