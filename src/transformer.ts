@@ -40,25 +40,37 @@ export namespace dawn {
               throw utils.throwQuoteError(p_node, "quasi-quotation takes one argument.");
             }
 
+            if (p_node.typeArguments === undefined || p_node.typeArguments.length !== 1) {
+              throw utils.throwQuoteError(p_node, "quasi-quotation takes one type argument.");
+            }
+
             const arg = p_node.arguments[0];
+            const type_arg = p_node.typeArguments[0];
             if (ts.isStringLiteralLike(arg)) {
-              const res = createProgram(arg.text, true); // TODO:
+              const res = createProgram(arg.text, true);
+              return ts.factory.createCallExpression(
+                ts.factory.createParenthesizedExpression(
+                  ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
+                    ts.factory.createBlock([
+                      ts.factory.createReturnStatement(
+                        ts.factory.createNewExpression(ts.factory.createIdentifier("dawn.Code"), [type_arg], undefined)
+                      )
+                    ], false)
+                  )
+                ), undefined, undefined
+              );
+            }
+            else if (ts.isTemplateExpression(arg)) {
+              // TODO:
+
               return ts.factory.createCallExpression(
                 ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
                   ts.factory.createBlock([], false)), undefined, undefined
               );
             }
-            else if (ts.isTemplateExpression(arg)) {
-              // TODO:
-            }
             else {
               throw utils.throwQuoteError(p_node, "the argument of quasi-quotation should be string or TemplateStringsArray.");
             }
-
-            return ts.factory.createCallExpression(
-              ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
-                ts.factory.createBlock([], false)), undefined, undefined
-            );
           }
         }
       }
