@@ -45,8 +45,12 @@ export namespace dawn {
             }
 
             const arg = p_node.arguments[0];
+            if (!ts.isIdentifier(arg)) {
+              throw utils.throwQuoteError(p_node, "quasi-quotation should be bound with a variable.");
+            }
+
             return ts.factory.createCallExpression(ts.factory.createPropertyAccessExpression(
-                ts.factory.createParenthesizedExpression(arg),
+                ts.factory.createIdentifier(`__dawn__${arg.getText()}`),
                 ts.factory.createIdentifier("run")
               ), undefined, undefined); // TODO: apply true AST
           }

@@ -54,6 +54,11 @@ export namespace dawn {
             const arg = p_node.arguments[0];
             let js = "";
 
+            if (!ts.isVariableDeclaration(p_node.parent)) {
+              throw utils.throwQuoteError(p_node, "quasi-quotation should be bound with a variable.");
+            }
+
+            const name = p_node.parent.name.getText();
             if (call_name === EXPRESSION_KEYWORD) {
               const sub_program = createSubProgram(`return ${arg.getText()}`, (p_content: string) => { js = p_content; });
               const transformer: ts.TransformerFactory<ts.SourceFile> = (p_ctx) => {
@@ -63,24 +68,35 @@ export namespace dawn {
                   return transformer.run(p_sf as ts.SourceFile);
                 };
               }
-              const res = tts.transform(sub_program.getSourceFile("code.ts") as ts.SourceFile, [transformer], OPTIONS);
-              const sf = res.transformed[0] as ts.SourceFile;
-              sub_program.emit();
-              return createCodeExpression(null, js);
+
+              sub_program.emit(undefined, undefined, undefined, undefined, { after: [transformer] });
+              return createCodeExpression(null, js, name);
             }
             else {
               if (ts.isArrowFunction(arg)) {
                 const sub_program = createSubProgram(arg.body.getText(), (p_content: string) => { js = p_content; });
-                sub_program.emit();
-                return createCodeExpression(null, js);
+                const transformer: ts.TransformerFactory<ts.SourceFile> = (p_ctx) => {
+                  const checker = sub_program.getTypeChecker();
+                  const transformer = new holes.HoleTransformer(p_ctx, checker);
+                  return (p_sf) => {
+                    return transformer.run(p_sf as ts.SourceFile);
+                  };
+                }
+  
+                sub_program.emit(undefined, undefined, undefined, undefined, { after: [transformer] });
+                return createCodeExpression(null, js, name);
               }
               else {
                 throw utils.throwQuoteError(p_node, "quasi-quotation statements only accept arrow functions.");
               }
             }
           }
+          else if (call_name === holes.APPLIED_KEYWORD || call_name === holes.UNAPPLIED_KEYWORD) {
+            throw utils.throwQuoteError(p_node, "'$' and '$_' should be used in a quasi-quotation.");
+          }
         }
       }
+      
 
       return ts.visitEachChild(p_node, this.m_visitor, this.m_context);
     }
@@ -97,16 +113,29 @@ export namespace dawn {
     return program;
   }
 
-  function createCodeExpression(p_node: null, p_js: string): ts.CallExpression {
+  function createCodeExpression(p_node: null, p_js: string, p_name: string): ts.CallExpression {
     return ts.factory.createCallExpression(
       ts.factory.createParenthesizedExpression(
         ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
           ts.factory.createBlock([
+            ts.factory.createExpressionStatement(
+              ts.factory.createBinaryExpression(
+                ts.factory.createElementAccessExpression(
+                  ts.factory.createIdentifier("globalThis"),
+                  ts.factory.createStringLiteral(`__dawn__${p_name}`)
+                ),
+                ts.factory.createToken(ts.SyntaxKind.EqualsToken),
+                ts.factory.createNewExpression(ts.factory.createIdentifier("dawn.Code"), [], [
+                  ts.factory.createNull(), // TODO:
+                  ts.factory.createStringLiteral(p_js)
+                ])
+              )
+            ),
             ts.factory.createReturnStatement(
-              ts.factory.createNewExpression(ts.factory.createIdentifier("dawn.Code"), [], [
-                ts.factory.createNull(), // TODO:
-                ts.factory.createStringLiteral(p_js)
-              ])
+              ts.factory.createElementAccessExpression(
+                ts.factory.createIdentifier("globalThis"),
+                ts.factory.createStringLiteral(`__dawn__${p_name}`)
+              )
             )
           ], false)
         )

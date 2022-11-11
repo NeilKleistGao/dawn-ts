@@ -27,6 +27,6 @@ const dawn = __importStar(require("../../src/index"));
 const expr$ = dawn.expr$;
 const stmt$ = dawn.stmt$;
 const $ = dawn.$;
-let code = (() => { return new dawn.Code(null, "return 2 + 2;\n"); })();
-let code2 = (() => { return new dawn.Code(null, "return $(code) + 1;\n"); })();
+let code = (() => { globalThis["__dawn__code"] = new dawn.Code(null, "return 2 + 2;\n"); return globalThis["__dawn__code"]; })();
+let code2 = (() => { globalThis["__dawn__code2"] = new dawn.Code(null, "return __dawn__code.run() + 1;\n"); return globalThis["__dawn__code2"]; })();
 console.log(code2.run());
