@@ -30,3 +30,5 @@ const $ = dawn.$;
 let code = (() => { globalThis["__dawn__code"] = new dawn.Code(null, "return 2 + 2;\n"); return globalThis["__dawn__code"]; })();
 let code2 = (() => { globalThis["__dawn__code2"] = new dawn.Code(null, "return __dawn__code.run() + 1;\n"); return globalThis["__dawn__code2"]; })();
 console.log(code2.run());
+let code3 = (() => { globalThis["__dawn__code3"] = new dawn.Code(null, "{\n    console.log(__dawn__code.run());\n}\n"); return globalThis["__dawn__code3"]; })();
+code3.run();
