@@ -11,6 +11,6 @@ let str = code2.run();
 console.log(str);
 
 let code3 = stmt$(() => {
-    console.log("hello world!");
+  console.log("hello world!");
 });
 code3.run();
