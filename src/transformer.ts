@@ -1,9 +1,16 @@
 import * as ts from "typescript";
+import * as tts from "ttypescript";
 import {dawn as utils} from "./utils";
+import {dawn as holes} from "./holes";
 
 export namespace dawn {
   const EXPRESSION_KEYWORD = "expr$";
   const STATEMENT_KEYWORD = "stmt$";
+
+  const OPTIONS = {
+    "target": ts.ScriptTarget.ES2016,
+    "module": ts.ModuleKind.CommonJS,
+  };
 
   export class QuasiQuotationTransformer {
     private m_context: ts.TransformationContext;
@@ -16,7 +23,7 @@ export namespace dawn {
       this.m_visitor = this.visit.bind(this);
     }
   
-    run(p_source_file: ts.SourceFile): ts.Node {
+    run(p_source_file: ts.SourceFile): ts.SourceFile {
       if (p_source_file.isDeclarationFile) return p_source_file;
       const statements: ts.Statement[] = [];
   
@@ -48,7 +55,16 @@ export namespace dawn {
             let js = "";
 
             if (call_name === EXPRESSION_KEYWORD) {
-              const sub_program = createSubProgram("return " + arg.getText(), (p_content: string) => { js = p_content; });
+              const sub_program = createSubProgram(`return ${arg.getText()}`, (p_content: string) => { js = p_content; });
+              const transformer: ts.TransformerFactory<ts.SourceFile> = (p_ctx) => {
+                const checker = sub_program.getTypeChecker();
+                const transformer = new holes.HoleTransformer(p_ctx, checker);
+                return (p_sf) => {
+                  return transformer.run(p_sf as ts.SourceFile);
+                };
+              }
+              const res = tts.transform(sub_program.getSourceFile("code.ts") as ts.SourceFile, [transformer], OPTIONS);
+              const sf = res.transformed[0] as ts.SourceFile;
               sub_program.emit();
               return createCodeExpression(null, js);
             }
@@ -71,18 +87,13 @@ export namespace dawn {
   }
 
   function createSubProgram(p_code: string, p_save: (p_content: string) => void = (p_content: string) => {p_content;}): ts.Program {
-    const options = {
-      "target": ts.ScriptTarget.ES2016,
-      "module": ts.ModuleKind.CommonJS
-    };
-
-    let compiler_host = ts.createCompilerHost(options);
+    let compiler_host = tts.createCompilerHost(OPTIONS);
       compiler_host.readFile =
         (p_filename: string) => { p_filename; return p_code; };
       compiler_host.writeFile =
         (p_filename: string, p_content: string) => { p_filename; p_save(p_content); };
 
-    const program = ts.createProgram(["code.ts"], options, compiler_host);
+    const program = tts.createProgram(["code.ts"], OPTIONS, compiler_host);
     return program;
   }
 
