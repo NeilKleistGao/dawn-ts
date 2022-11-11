@@ -26,7 +26,8 @@ export class Code<T> {
   }
 }
 
-export declare function code$<T>(code: T): Code<T>;
+export declare function expr$<T>(code: T): Code<T>;
+export declare function stmt$(code: ()=>void): Code<void>;
 
 export default(p_program: ts.Program): ts.TransformerFactory<ts.Node> =>
   (p_ctx) => {

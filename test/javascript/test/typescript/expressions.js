@@ -24,10 +24,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dawn = __importStar(require("../../src/index"));
-const code$ = dawn.code$;
+const expr$ = dawn.expr$;
+const stmt$ = dawn.stmt$;
 let code = (() => { return new dawn.Code(null, "return 2 + 2;\n"); })();
 let v4 = code.run();
 console.log(v4);
 let code2 = (() => { return new dawn.Code(null, "return \"abcdefg\".substring(2);\n"); })();
 let str = code2.run();
 console.log(str);
+let code3 = (() => { return new dawn.Code(null, "{\n    console.log(\"hello world!\");\n}\n"); })();
+code3.run();
