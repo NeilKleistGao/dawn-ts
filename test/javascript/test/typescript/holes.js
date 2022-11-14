@@ -26,6 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const dawn = __importStar(require("../../src/index"));
 const expr$ = dawn.expr$;
 const stmt$ = dawn.stmt$;
+const cross$ = dawn.cross$;
 const $ = dawn.$;
 let code = (() => { return new dawn.Code(null, "return 2 + 2;\n", new Map()); })();
 let code2 = (() => { return new dawn.Code(null, "return p_ref.get(\"code\").run() + 1;\n", new Map([["code", code]])); })();
@@ -37,3 +38,6 @@ function inc(num) {
 }
 let res = inc((() => { return new dawn.Code(null, "return 42;\n", new Map()); })());
 console.log(res.run());
+const v = 42;
+const neg = (() => { return new dawn.Code(null, "return -p_ref.get(\"v\");\n", new Map([["v", v]])); })();
+console.log(neg.run());

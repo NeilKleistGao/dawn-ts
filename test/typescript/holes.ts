@@ -1,6 +1,7 @@
 import * as dawn from "../../src/index";
 const expr$ = dawn.expr$;
 const stmt$ = dawn.stmt$;
+const cross$ = dawn.cross$;
 const $ = dawn.$;
 
 let code = expr$(2 + 2);
@@ -17,3 +18,7 @@ function inc(num: dawn.Code<number>): dawn.Code<number> {
 }
 let res = inc(expr$(42));
 console.log(res.run());
+
+const v = 42;
+const neg = expr$(-cross$(v));
+console.log(neg.run());

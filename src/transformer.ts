@@ -121,8 +121,10 @@ export namespace dawn {
               }
             }
           }
-          else if (call_name === holes.APPLIED_KEYWORD || call_name === holes.UNAPPLIED_KEYWORD) {
-            throw utils.throwQuoteError(p_node, "'$' and '$_' should be used in a quasi-quotation.");
+          else if (call_name === holes.APPLIED_KEYWORD ||
+                   call_name === holes.UNAPPLIED_KEYWORD ||
+                   call_name === holes.CROSS_KEYWORD) {
+            throw utils.throwQuoteError(p_node, "'cross$', '$' and '$_' should be used in a quasi-quotation.");
           }
         }
       }

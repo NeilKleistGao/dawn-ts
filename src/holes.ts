@@ -2,6 +2,7 @@ import * as ts from "typescript";
 import {dawn as utils} from "./utils";
 
 export namespace dawn {
+  export const CROSS_KEYWORD = "cross$";
   export const APPLIED_KEYWORD = "$";
   export const UNAPPLIED_KEYWORD = "$_";
 
@@ -40,7 +41,9 @@ export namespace dawn {
       if (ts.isCallExpression(p_node)) {
         if (ts.isIdentifier(p_node.expression)) {
           const call_name = p_node.expression.escapedText.toString();
-          if (call_name === APPLIED_KEYWORD || call_name === UNAPPLIED_KEYWORD) {
+          if (call_name === APPLIED_KEYWORD ||
+              call_name === UNAPPLIED_KEYWORD ||
+              call_name === CROSS_KEYWORD) {
             if (p_node.arguments === undefined || p_node.arguments.length !== 1) {
               throw utils.throwQuoteError(p_node, "unquotation takes one argument.");
             }
@@ -52,7 +55,8 @@ export namespace dawn {
 
             const name = arg.getText();
             this.m_hole_names.add(name);
-            return ts.factory.createCallExpression(ts.factory.createPropertyAccessExpression(
+            if (call_name === APPLIED_KEYWORD) {
+              return ts.factory.createCallExpression(ts.factory.createPropertyAccessExpression(
                 ts.factory.createCallExpression(
                   ts.factory.createPropertyAccessExpression(
                     ts.factory.createIdentifier("p_ref"),
@@ -63,6 +67,20 @@ export namespace dawn {
                 ),
                 ts.factory.createIdentifier("run")
               ), undefined, undefined); // TODO: apply true AST
+            }
+            else if (call_name === CROSS_KEYWORD) {
+              return ts.factory.createCallExpression(
+                ts.factory.createPropertyAccessExpression(
+                  ts.factory.createIdentifier("p_ref"),
+                  ts.factory.createIdentifier("get")
+                ),
+                undefined,
+                [ts.factory.createStringLiteral(name.toString())]
+              );
+            }
+            else {
+              // TODO:
+            }
           }
         }
       }
