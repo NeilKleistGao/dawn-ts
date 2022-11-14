@@ -7,11 +7,14 @@ export namespace dawn {
   const EXPRESSION_KEYWORD = "expr$";
   const STATEMENT_KEYWORD = "stmt$";
   const DIAGNOTICS_REG = /^Cannot find name (')(\w+)('|").$/;
+  const SOURCE_FILE_NAME = "code.ts";
 
   const OPTIONS = {
     "target": ts.ScriptTarget.ES2016,
     "module": ts.ModuleKind.CommonJS,
   };
+
+  type QuotationData = [null, string]; // TODO:
 
   export class QuasiQuotationTransformer {
     private m_context: ts.TransformationContext;
@@ -58,7 +61,7 @@ export namespace dawn {
             }
 
             const name = p_node.parent.name.getText();
-            function emit(p_program: string): [null, string] {
+            function emit(p_program: string): QuotationData {
               let js = "";
               let hole_names = new Set<String>();
 
@@ -74,7 +77,7 @@ export namespace dawn {
               }
 
               sub_program.emit(undefined, undefined, undefined, undefined, { after: [transformer] });
-              const diagnotics = sub_program.getSemanticDiagnostics(sub_program.getSourceFile("code.ts"));
+              const diagnotics = sub_program.getSemanticDiagnostics(sub_program.getSourceFile(SOURCE_FILE_NAME));
               for (const diag of diagnotics) {
                 if (diag.code === 2304) {
                   const match_array = DIAGNOTICS_REG.exec(diag.messageText.toString());
@@ -122,7 +125,7 @@ export namespace dawn {
       compiler_host.writeFile =
         (p_filename: string, p_content: string) => { p_filename; p_save(p_content); };
 
-    const program = tts.createProgram(["code.ts"], OPTIONS, compiler_host);
+    const program = tts.createProgram([SOURCE_FILE_NAME], OPTIONS, compiler_host);
     return program;
   }
 
