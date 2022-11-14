@@ -11,6 +11,3 @@ let code3 = stmt$(() => {
   console.log($(code));
 });
 code3.run();
-
-// let abc = "abc";
-// let code3 = expr$($(abc) + "def");

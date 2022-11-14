@@ -6,6 +6,7 @@ import {dawn as holes} from "./holes";
 export namespace dawn {
   const EXPRESSION_KEYWORD = "expr$";
   const STATEMENT_KEYWORD = "stmt$";
+  const DIAGNOTICS_REG = /^Cannot find name (')(\w+)('|").$/;
 
   const OPTIONS = {
     "target": ts.ScriptTarget.ES2016,
@@ -52,39 +53,51 @@ export namespace dawn {
             }
 
             const arg = p_node.arguments[0];
-            let js = "";
-
             if (!ts.isVariableDeclaration(p_node.parent)) {
               throw utils.throwQuoteError(p_node, "quasi-quotation should be bound with a variable.");
             }
 
             const name = p_node.parent.name.getText();
-            if (call_name === EXPRESSION_KEYWORD) {
-              const sub_program = createSubProgram(`return ${arg.getText()}`, (p_content: string) => { js = p_content; });
+            function emit(p_program: string): [null, string] {
+              let js = "";
+              let hole_names = new Set<String>();
+
+              const sub_program = createSubProgram(p_program, (p_content: string) => { js = p_content; });
               const transformer: ts.TransformerFactory<ts.SourceFile> = (p_ctx) => {
                 const checker = sub_program.getTypeChecker();
                 const transformer = new holes.HoleTransformer(p_ctx, checker);
                 return (p_sf) => {
-                  return transformer.run(p_sf as ts.SourceFile);
+                  const res = transformer.run(p_sf as ts.SourceFile);
+                  hole_names = transformer.getHoleNames();
+                  return res;
                 };
               }
 
               sub_program.emit(undefined, undefined, undefined, undefined, { after: [transformer] });
-              return createCodeExpression(null, js, name);
+              const diagnotics = sub_program.getSemanticDiagnostics(sub_program.getSourceFile("code.ts"));
+              for (const diag of diagnotics) {
+                if (diag.code === 2304) {
+                  const match_array = DIAGNOTICS_REG.exec(diag.messageText.toString());
+                  if (match_array !== null) {
+                    const name = match_array[2].toString();
+                    if (!hole_names.has(name)) {
+                      throw utils.throwQuoteError(p_node, `can not find code variable '${name}'.`);
+                    }
+                  }
+                }
+              }
+
+              return [null, js]; // TODO:
+            }
+
+            if (call_name === EXPRESSION_KEYWORD) {
+              const res = emit(arg.getText());
+              return createCodeExpression(res[0], `return ${res[1]}`, name);
             }
             else {
               if (ts.isArrowFunction(arg)) {
-                const sub_program = createSubProgram(arg.body.getText(), (p_content: string) => { js = p_content; });
-                const transformer: ts.TransformerFactory<ts.SourceFile> = (p_ctx) => {
-                  const checker = sub_program.getTypeChecker();
-                  const transformer = new holes.HoleTransformer(p_ctx, checker);
-                  return (p_sf) => {
-                    return transformer.run(p_sf as ts.SourceFile);
-                  };
-                }
-  
-                sub_program.emit(undefined, undefined, undefined, undefined, { after: [transformer] });
-                return createCodeExpression(null, js, name);
+                const res = emit(arg.body.getText());
+              return createCodeExpression(res[0], res[1], name);
               }
               else {
                 throw utils.throwQuoteError(p_node, "quasi-quotation statements only accept arrow functions.");

@@ -9,6 +9,7 @@ export namespace dawn {
     private m_context: ts.TransformationContext;
     private m_checker: ts.TypeChecker;
     private m_visitor: ts.Visitor;
+    private m_hole_names = new Set<String>();
 
     constructor(p_context: ts.TransformationContext, p_checker: ts.TypeChecker) {
       this.m_context = p_context;
@@ -49,8 +50,10 @@ export namespace dawn {
               throw utils.throwQuoteError(p_node, "quasi-quotation should be bound with a variable.");
             }
 
+            const name = arg.getText();
+            this.m_hole_names.add(name);
             return ts.factory.createCallExpression(ts.factory.createPropertyAccessExpression(
-                ts.factory.createIdentifier(`__dawn__${arg.getText()}`),
+                ts.factory.createIdentifier(`__dawn__${name}`),
                 ts.factory.createIdentifier("run")
               ), undefined, undefined); // TODO: apply true AST
           }
@@ -58,6 +61,10 @@ export namespace dawn {
       }
 
       return ts.visitEachChild(p_node, this.m_visitor, this.m_context);
+    }
+
+    getHoleNames(): Set<String> {
+      return this.m_hole_names;
     }
   }
 } // namespace dawn
