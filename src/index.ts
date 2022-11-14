@@ -2,23 +2,18 @@ import * as ts from "typescript";
 import {dawn} from "./transformer";
 
 export class Code<T> {
-  private m_js: Function | undefined = undefined;
+  private m_func: Function;
   private m_root: ts.Node;
+  private m_params: Map<string, Code<unknown>>;
 
-  constructor(p_ast: ts.Node, p_js: string | undefined) {
+  constructor(p_ast: ts.Node, p_js: string, p_params: Map<string, Code<unknown>>) {
     this.m_root = p_ast;
-    if (p_js !== undefined) {
-      this.m_js = new Function(p_js);
-    }
+    this.m_params = p_params;
+    this.m_func = new Function("p_ref", p_js);
   }
 
-  run(): T | never {
-    if (this.m_js === undefined) {
-      throw new Error("the code could not be run.");
-    }
-    else {
-      return this.m_js() as T;
-    }
+  run(): T {
+    return this.m_func(this.m_params) as T;
   }
 
   match(pattern: Code<T>): null {

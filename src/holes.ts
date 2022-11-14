@@ -53,7 +53,14 @@ export namespace dawn {
             const name = arg.getText();
             this.m_hole_names.add(name);
             return ts.factory.createCallExpression(ts.factory.createPropertyAccessExpression(
-                ts.factory.createIdentifier(`__dawn__${name}`),
+                ts.factory.createCallExpression(
+                  ts.factory.createPropertyAccessExpression(
+                    ts.factory.createIdentifier("p_ref"),
+                    ts.factory.createIdentifier("get")
+                  ),
+                  undefined,
+                  [ts.factory.createStringLiteral(name.toString())]
+                ),
                 ts.factory.createIdentifier("run")
               ), undefined, undefined); // TODO: apply true AST
           }

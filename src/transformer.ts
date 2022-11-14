@@ -61,6 +61,8 @@ export namespace dawn {
             }
 
             const name = p_node.parent.name.getText();
+            let ref_array: ts.Expression =
+              ts.factory.createNewExpression(ts.factory.createIdentifier("Map"), undefined, []);
             function emit(p_program: string): QuotationData {
               let js = "";
               let hole_names = new Set<String>();
@@ -90,17 +92,33 @@ export namespace dawn {
                 }
               }
 
+              if (hole_names.size > 0) {
+                const pairs: ts.Expression[] = [];
+                for (const name of hole_names) {
+                  pairs.push(
+                    ts.factory.createArrayLiteralExpression([
+                      ts.factory.createStringLiteral(name.toString()),
+                      ts.factory.createIdentifier(name.toString())
+                    ])
+                  );
+                }
+
+                ref_array =
+                  ts.factory.createNewExpression(ts.factory.createIdentifier("Map"), undefined,
+                  [ts.factory.createArrayLiteralExpression(pairs)]);
+              }
+
               return [null, js]; // TODO:
             }
 
             if (call_name === EXPRESSION_KEYWORD) {
               const res = emit(arg.getText());
-              return createCodeExpression(res[0], `return ${res[1]}`, name);
+              return createCodeExpression(res[0], `return ${res[1]}`, name, ref_array);
             }
             else {
               if (ts.isArrowFunction(arg)) {
                 const res = emit(arg.body.getText());
-              return createCodeExpression(res[0], res[1], name);
+              return createCodeExpression(res[0], res[1], name, ref_array);
               }
               else {
                 throw utils.throwQuoteError(p_node, "quasi-quotation statements only accept arrow functions.");
@@ -129,29 +147,17 @@ export namespace dawn {
     return program;
   }
 
-  function createCodeExpression(p_node: null, p_js: string, p_name: string): ts.CallExpression {
+  function createCodeExpression(p_node: null, p_js: string, p_name: string, p_params: ts.Expression): ts.CallExpression {
     return ts.factory.createCallExpression(
       ts.factory.createParenthesizedExpression(
         ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
           ts.factory.createBlock([
-            ts.factory.createExpressionStatement(
-              ts.factory.createBinaryExpression(
-                ts.factory.createElementAccessExpression(
-                  ts.factory.createIdentifier("globalThis"),
-                  ts.factory.createStringLiteral(`__dawn__${p_name}`)
-                ),
-                ts.factory.createToken(ts.SyntaxKind.EqualsToken),
-                ts.factory.createNewExpression(ts.factory.createIdentifier("dawn.Code"), [], [
-                  ts.factory.createNull(), // TODO:
-                  ts.factory.createStringLiteral(p_js)
-                ])
-              )
-            ),
             ts.factory.createReturnStatement(
-              ts.factory.createElementAccessExpression(
-                ts.factory.createIdentifier("globalThis"),
-                ts.factory.createStringLiteral(`__dawn__${p_name}`)
-              )
+              ts.factory.createNewExpression(ts.factory.createIdentifier("dawn.Code"), [], [
+                ts.factory.createNull(), // TODO:
+                ts.factory.createStringLiteral(p_js),
+                p_params
+              ])
             )
           ], false)
         )
