@@ -32,3 +32,8 @@ let code2 = (() => { return new dawn.Code(null, "return p_ref.get(\"code\").run(
 console.log(code2.run());
 let code3 = (() => { return new dawn.Code(null, "{\n    console.log(p_ref.get(\"code\").run());\n}\n", new Map([["code", code]])); })();
 code3.run();
+function inc(num) {
+    return (() => { return new dawn.Code(null, "return p_ref.get(\"num\").run() + 1;\n", new Map([["num", num]])); })();
+}
+let res = inc((() => { return new dawn.Code(null, "return 42;\n", new Map()); })());
+console.log(res.run());

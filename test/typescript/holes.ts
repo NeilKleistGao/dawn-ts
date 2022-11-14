@@ -11,3 +11,9 @@ let code3 = stmt$(() => {
   console.log($(code));
 });
 code3.run();
+
+function inc(num: dawn.Code<number>): dawn.Code<number> {
+  return expr$($(num) + 1);
+}
+let res = inc(expr$(42));
+console.log(res.run());

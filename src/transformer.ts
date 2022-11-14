@@ -56,11 +56,7 @@ export namespace dawn {
             }
 
             const arg = p_node.arguments[0];
-            if (!ts.isVariableDeclaration(p_node.parent)) {
-              throw utils.throwQuoteError(p_node, "quasi-quotation should be bound with a variable.");
-            }
 
-            const name = p_node.parent.name.getText();
             let ref_array: ts.Expression =
               ts.factory.createNewExpression(ts.factory.createIdentifier("Map"), undefined, []);
             function emit(p_program: string): QuotationData {
@@ -113,12 +109,12 @@ export namespace dawn {
 
             if (call_name === EXPRESSION_KEYWORD) {
               const res = emit(arg.getText());
-              return createCodeExpression(res[0], `return ${res[1]}`, name, ref_array);
+              return createCodeExpression(res[0], `return ${res[1]}`, ref_array);
             }
             else {
               if (ts.isArrowFunction(arg)) {
                 const res = emit(arg.body.getText());
-              return createCodeExpression(res[0], res[1], name, ref_array);
+              return createCodeExpression(res[0], res[1], ref_array);
               }
               else {
                 throw utils.throwQuoteError(p_node, "quasi-quotation statements only accept arrow functions.");
@@ -147,7 +143,7 @@ export namespace dawn {
     return program;
   }
 
-  function createCodeExpression(p_node: null, p_js: string, p_name: string, p_params: ts.Expression): ts.CallExpression {
+  function createCodeExpression(p_node: null, p_js: string, p_params: ts.Expression): ts.CallExpression {
     return ts.factory.createCallExpression(
       ts.factory.createParenthesizedExpression(
         ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
