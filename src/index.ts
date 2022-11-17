@@ -21,9 +21,9 @@ export class Code<T> {
   }
 }
 
-export declare function expr$<T>(p_code: T): Code<T>;
-export declare function stmt$(p_code: ()=>void): Code<void>;
-export declare function cross$<T>(p_variable: T): T;
+export declare function $expr<T>(p_code: T): Code<T>;
+export declare function $stmt(p_code: ()=>void): Code<void>;
+export declare function $cross<T>(p_variable: T): T;
 export declare function $<T>(p_code: Code<T>): T;
 export declare function $_<T>(p_name: string): T; // TODO: pattern matching
 export declare function $$<T>(p_name: string): T; // TODO: context

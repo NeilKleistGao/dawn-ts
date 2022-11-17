@@ -24,8 +24,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const dawn = __importStar(require("../../src/index"));
-const expr$ = dawn.expr$;
-const stmt$ = dawn.stmt$;
+const $expr = dawn.$expr;
+const $stmt = dawn.$stmt;
 let code = (() => { return new dawn.Code(null, "return 2 + 2;\n", new Map()); })();
 let v4 = code.run();
 console.log(v4);

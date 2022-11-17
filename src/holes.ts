@@ -2,7 +2,7 @@ import * as ts from "typescript";
 import {dawn as utils} from "./utils";
 
 export namespace dawn {
-  export const CROSS_KEYWORD = "cross$";
+  export const CROSS_KEYWORD = "$cross";
   export const APPLIED_KEYWORD = "$";
   export const UNAPPLIED_KEYWORD = "$_";
 

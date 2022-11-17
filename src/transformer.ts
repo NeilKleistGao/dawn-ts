@@ -4,8 +4,8 @@ import {dawn as utils} from "./utils";
 import {dawn as holes} from "./holes";
 
 export namespace dawn {
-  const EXPRESSION_KEYWORD = "expr$";
-  const STATEMENT_KEYWORD = "stmt$";
+  const EXPRESSION_KEYWORD = "$expr";
+  const STATEMENT_KEYWORD = "$stmt";
   const DIAGNOTICS_REG = /^Cannot find name (')(\w+)('|").$/;
   const SOURCE_FILE_NAME = "code.ts";
 
@@ -124,7 +124,7 @@ export namespace dawn {
           else if (call_name === holes.APPLIED_KEYWORD ||
                    call_name === holes.UNAPPLIED_KEYWORD ||
                    call_name === holes.CROSS_KEYWORD) {
-            throw utils.throwQuoteError(p_node, "'cross$', '$' and '$_' should be used in a quasi-quotation.");
+            throw utils.throwQuoteError(p_node, "'$cross', '$' and '$_' should be used in a quasi-quotation.");
           }
         }
       }
