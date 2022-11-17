@@ -1,12 +1,13 @@
 import * as ts from "typescript";
 import {dawn} from "./transformer";
+import {dawn as ast} from "./ast";
 
 export class Code<T> {
   private m_func: Function;
-  private m_root: ts.Node;
+  private m_root: ast.QuasiAST;
   private m_params: Map<string, Code<unknown>>;
 
-  constructor(p_ast: ts.Node, p_js: string, p_params: Map<string, Code<unknown>>) {
+  constructor(p_ast: ast.QuasiAST, p_js: string, p_params: Map<string, Code<unknown>>) {
     this.m_root = p_ast;
     this.m_params = p_params;
     this.m_func = new Function("p_ref", p_js);
