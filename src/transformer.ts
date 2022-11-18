@@ -114,7 +114,7 @@ export namespace dawn {
             else {
               if (ts.isArrowFunction(arg)) {
                 const res = emit(arg.body.getText());
-              return createCodeExpression(res[0], res[1], ref_array);
+                return createCodeExpression(res[0], res[1], ref_array);
               }
               else {
                 throw utils.throwQuoteError(p_node, "quasi-quotation statements only accept arrow functions.");
