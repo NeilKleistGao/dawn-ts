@@ -24,8 +24,26 @@ export namespace dawn {
     }
   }
 
-  const CREATE_AST_HANDLER = "createAST";
+  const CREATE_AST_HANDLER = ts.factory.createIdentifier("dawn.createAST");
   export function translate(p_node: ts.Node): ts.Expression {
-    return ts.factory.createNull(); // TODO:
+    const children_list: ts.Expression[] = [];
+    const children = p_node.getChildren();
+    for (let child of children) {
+      if (child.kind !== ts.SyntaxKind.EndOfFileToken) {
+        children_list.push(translate(child));
+      }
+    }
+
+    return ts.factory.createCallExpression(
+      CREATE_AST_HANDLER, undefined, [
+        ts.factory.createNumericLiteral(p_node.kind as number),
+        ts.factory.createArrayLiteralExpression([
+          ts.factory.createNumericLiteral(p_node.pos),
+          ts.factory.createNumericLiteral(p_node.end)
+        ]),
+        ts.factory.createArrayLiteralExpression(children_list),
+        ts.factory.createFalse() // TODO: check holes.
+      ]
+    );
   }
 } // namespace dawn
