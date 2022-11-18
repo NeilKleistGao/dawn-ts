@@ -23,4 +23,9 @@ export namespace dawn {
       return new Code<T>(this, p_js, new Map<string, Code<unknown>>()); // TODO:
     }
   }
+
+  const CREATE_AST_HANDLER = "createAST";
+  export function translate(p_node: ts.Node): ts.Expression {
+    return ts.factory.createNull(); // TODO:
+  }
 } // namespace dawn

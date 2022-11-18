@@ -2,6 +2,7 @@ import * as ts from "typescript";
 import * as tts from "ttypescript";
 import {dawn as utils} from "./utils";
 import {dawn as holes} from "./holes";
+import {dawn as ast} from "./ast";
 
 export namespace dawn {
   const EXPRESSION_KEYWORD = "$expr";
@@ -14,7 +15,7 @@ export namespace dawn {
     "module": ts.ModuleKind.CommonJS,
   };
 
-  type QuotationData = [null, string]; // TODO:
+  type QuotationData = [ts.Expression, string]; // TODO:
 
   export class QuasiQuotationTransformer {
     private m_context: ts.TransformationContext;
@@ -104,7 +105,7 @@ export namespace dawn {
                   [ts.factory.createArrayLiteralExpression(pairs)]);
               }
 
-              return [null, js]; // TODO:
+              return [ast.translate(sub_program.getSourceFile(SOURCE_FILE_NAME) as ts.Node), js];
             }
 
             if (call_name === EXPRESSION_KEYWORD) {
@@ -145,16 +146,14 @@ export namespace dawn {
     return program;
   }
 
-  function createCodeExpression(p_node: null, p_js: string, p_params: ts.Expression): ts.CallExpression {
+  function createCodeExpression(p_exp: ts.Expression, p_js: string, p_params: ts.Expression): ts.CallExpression {
     return ts.factory.createCallExpression(
       ts.factory.createParenthesizedExpression(
         ts.factory.createArrowFunction(undefined, undefined, [], undefined, undefined,
           ts.factory.createBlock([
             ts.factory.createReturnStatement(
               ts.factory.createNewExpression(ts.factory.createIdentifier("dawn.Code"), [], [
-                ts.factory.createNull(), // TODO:
-                ts.factory.createStringLiteral(p_js),
-                p_params
+                p_exp, ts.factory.createStringLiteral(p_js), p_params
               ])
             )
           ], false)
