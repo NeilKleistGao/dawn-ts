@@ -28,6 +28,7 @@ const $expr = dawn.$expr;
 const $stmt = dawn.$stmt;
 const $cross = dawn.$cross;
 const $ = dawn.$;
+const createAST = dawn.createAST;
 let code = (() => { return new dawn.Code(null, "return 2 + 2;\n", new Map()); })();
 let code2 = (() => { return new dawn.Code(null, "return p_ref.get(\"code\").run() + 1;\n", new Map([["code", code]])); })();
 console.log(code2.run());

@@ -1,6 +1,7 @@
 import * as dawn from "../../src/index";
 const $expr = dawn.$expr;
 const $stmt = dawn.$stmt;
+const createAST = dawn.createAST;
 
 let code = $expr(2 + 2);
 let v4: number = code.run();

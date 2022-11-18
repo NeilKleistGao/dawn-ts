@@ -22,6 +22,10 @@ export class Code<T> {
   }
 }
 
+export function createAST(p_kind: ts.SyntaxKind, p_range: [number, number], p_children: ast.QuasiAST[], p_is_hole: boolean) {
+  return new ast.QuasiAST(p_kind, p_range, p_children, p_is_hole);
+}
+
 export declare function $expr<T>(p_code: T): Code<T>;
 export declare function $stmt(p_code: ()=>void): Code<void>;
 export declare function $cross<T>(p_variable: T): T;

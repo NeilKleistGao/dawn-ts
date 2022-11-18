@@ -3,6 +3,7 @@ const $expr = dawn.$expr;
 const $stmt = dawn.$stmt;
 const $cross = dawn.$cross;
 const $ = dawn.$;
+const createAST = dawn.createAST;
 
 let code = $expr(2 + 2);
 let code2 = $expr($(code) + 1);
